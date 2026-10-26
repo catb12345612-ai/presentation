@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Syed Zeeshaan Ali | Executive Capabilities, 3D AR Studio & Digital Tech Deck</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #F59E0B;
+      --gold-light: #FDE68A;
+      --obsidian: #07090E;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--obsidian);
+      color: #F9FAFB;
+      overflow-x: hidden;
+    }
+    .serif-title {
+      font-family: 'Playfair Display', serif;
+    }
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #FFFBEB 0%, #FDE68A 35%, #F59E0B 75%, #D97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-border-glow {
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      box-shadow: 0 20px 50px -15px rgba(245, 158, 11, 0.14);
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .slide-frame {
+      display: none;
+      min-height: calc(100vh - 88px);
+      animation: slideTransition 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .slide-frame.active {
+      display: flex;
+    }
+    @keyframes slideTransition {
+      from { opacity: 0; transform: translateX(30px) scale(0.99); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    /* 3D FURNITURE AR STAGE STYLING */
+    .ar-stage {
+      perspective: 1000px;
+      background-size: cover;
+      background-position: center;
+      transition: background-position 0.15s ease-out, background-image 0.3s ease;
+      overflow: hidden;
+      position: relative;
+      touch-action: none;
+    }
+    .ar-floor-grid {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to top, rgba(0,0,0,0.68) 0%, rgba(0,0,0,0.12) 45%, rgba(0,0,0,0.3) 100%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 40px);
+      pointer-events: none;
+    }
+    #furniture3DWrapper {
+      position: absolute;
+      left: 50%;
+      top: 62%;
+      transform: translate(-50%, -50%) rotateY(0deg) scale(1);
+      transform-style: preserve-3d;
+      cursor: grab;
+      user-select: none;
+      transition: filter 0.2s ease;
+      filter: drop-shadow(0 22px 18px rgba(0, 0, 0, 0.75));
+    }
+    #furniture3DWrapper:active {
+      cursor: grabbing;
+    }
+
+    /* PERFECT LANDSCAPE PDF EXPORT ENGINE */
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+      body {
+        background: #07090E !important;
+        color: #FFFFFF !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      #topControls, #bottomControls {
+        display: none !important;
+      }
+      .slide-frame {
+        display: flex !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        min-height: 100vh !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        padding: 24px 36px !important;
+        box-sizing: border-box !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-stone-950">
+
+  <!-- AMBIENT LUXURY BACKGROUND GLOWS -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/3 -right-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-40 left-1/3 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- TOP NAVIGATION & 1-CLICK PDF EXPORT BAR -->
+  <header id="topControls" class="sticky top-0 z-40 bg-stone-950/90 backdrop-blur-md border-b border-amber-500/20 px-4 py-2.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+      <a href="https://catb12345612-ai.github.io/Syed-Zeeshaan-Ali-High-Fledged-Engineering-And-Digital-Tech-Solutions-Site/" target="_blank" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-stone-950 font-black flex items-center justify-center text-sm shadow-md">
+          SZA
+        </div>
+        <div>
+          <p class="text-xs sm:text-sm font-black text-white group-hover:text-amber-400 transition">SYED ZEESHAAN ALI</p>
+          <p class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">High-Fledged Engineering & Digital Tech Solutions</p>
+        </div>
+      </a>
+
+      <!-- SLIDE PROGRESS DOTS -->
+      <div id="slideDots" class="hidden md:flex items-center gap-1.5"></div>
+
+      <!-- ACTION BUTTONS -->
+      <div class="flex items-center gap-2 text-xs font-extrabold">
+        <button onclick="goToSlide(3)" class="bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 px-3 py-2 rounded-xl transition hidden sm:inline-flex items-center gap-1">
+          🛋️ Try Live 3D Room Demo
+        </button>
+        <button onclick="window.print()" class="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 px-3.5 py-2 rounded-xl shadow-md flex items-center gap-1.5 transition">
+          <span>📥 Save / Print as PDF</span>
+        </button>
+        <a href="https://wa.me/919032208086?text=Hi%20Syed%20Zeeshaan%20Ali,%20I%20viewed%20your%20Executive%20Presentation%20and%20want%20to%20discuss%20a%20project." target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl transition">
+          💬 WhatsApp
+        </a>
+        <a href="tel:7989698613" class="bg-stone-800 hover:bg-stone-700 text-amber-300 border border-amber-500/30 px-3 py-2 rounded-xl transition">
+          📞 Call
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== SLIDES CONTAINER ==================== -->
+  <main class="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-8 flex-1 flex flex-col justify-center">
+
+    <!-- SLIDE 1: EXECUTIVE COVER & VISION -->
+    <section class="slide-frame active flex-col justify-center py-6">
+      <div class="glass-card gold-border-glow rounded-3xl p-6 sm:p-12 relative overflow-hidden">
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest">
+            ★ Executive Capabilities Portfolio
+          </span>
+          <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full text-xs font-bold">
+            Full-Stack All-Rounder • AI & Automation Architect
+          </span>
+        </div>
+
+        <h1 class="serif-title text-3xl sm:text-5xl lg:text-6xl font-extrabold leading-tight gold-gradient-text">
+          Syed Zeeshaan Ali
+        </h1>
+        <h2 class="text-lg sm:text-2xl font-extrabold text-amber-400 mt-1">
+          Founder — Syed Zeeshaan Ali High-Fledged Engineering And Digital Tech Solutions
+        </h2>
+
+        <p class="text-stone-300 text-sm sm:text-base max-w-3xl mt-4 leading-relaxed">
+          Your single-point technology, automation, and high-conversion growth partner. From <b>Cloud POS & ERP Billing</b>, <b>CA Workflow Automations</b>, and <b>Interactive 3D AR Furniture & 360° Property Visualizers</b> to <b>Open-Source AI 2D/3D Animation</b> and <b>Large-Scale Meta Ad PR Campaigns</b>—if your business needs a tool to scale, I engineer it from scratch.
+        </p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-3.5">
+            <p class="text-2xl font-black text-amber-400">100%</p>
+            <p class="text-xs text-stone-400 font-semibold mt-0.5">Custom-Engineered Software & AI Tools</p>
+          </div>
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-3.5">
+            <p class="text-2xl font-black text-emerald-400">A+ Grade</p>
+            <p class="text-xs text-stone-400 font-semibold mt-0.5">Intermediate Scholar & NEET Aspirant Rigor</p>
+          </div>
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-3.5">
+            <p class="text-2xl font-black text-sky-400">2D / 3D / 360°</p>
+            <p class="text-xs text-stone-400 font-semibold mt-0.5">Websites, AR Room Placement & AI Video</p>
+          </div>
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-3.5">
+            <p class="text-2xl font-black text-pink-400">End-to-End</p>
+            <p class="text-xs text-stone-400 font-semibold mt-0.5">Meta Ads, Webhook PR Stunts & Growth</p>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-5 border-t border-stone-800 flex flex-wrap justify-between items-center gap-4 text-xs">
+          <div class="flex flex-wrap items-center gap-4 font-bold">
+            <span>💬 WhatsApp: <a href="https://wa.me/919032208086" target="_blank" class="text-emerald-400 underline">+91 90322 08086</a></span>
+            <span>📞 Direct Call: <a href="tel:7989698613" class="text-amber-400 underline">+91 79896 98613</a></span>
+            <span>📸 Instagram: <a href="https://www.instagram.com/syedzeeshaanali07/" target="_blank" class="text-pink-400 underline">@syedzeeshaanali07</a></span>
+          </div>
+          <a href="https://catb12345612-ai.github.io/Syed-Zeeshaan-Ali-High-Fledged-Engineering-And-Digital-Tech-Solutions-Site/" target="_blank" class="text-amber-300 hover:underline font-black">
+            🌐 Visit Official Web Portal →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: ACADEMIC EXCELLENCE & ALL-ROUNDER INTELLECTUAL FOUNDATION -->
+    <section class="slide-frame flex-col justify-center py-6">
+      <div class="glass-card gold-border-glow rounded-3xl p-6 sm:p-10">
+        <span class="text-xs font-black uppercase tracking-widest text-amber-400">Slide 02 • The Mind Behind The Systems</span>
+        <h2 class="serif-title text-2xl sm:text-4xl font-bold mt-1 gold-gradient-text">
+          Academic Excellence Meets Unlimited Technical Adaptability
+        </h2>
+        <p class="text-stone-300 text-sm mt-2 max-w-3xl">
+          True engineering requires more than templates—it demands analytical speed, scientific precision, and the ability to master any new technology overnight.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div class="bg-stone-900/90 border border-amber-500/30 rounded-2xl p-5 space-y-2">
+            <span class="text-3xl">🎓</span>
+            <h3 class="text-base font-black text-white">A+ Grade Intermediate Scholar</h3>
+            <p class="text-xs text-stone-300 leading-relaxed">
+              Proven academic distinction with an <b>A+ Grade in Intermediate studies</b>. Demonstrates structured problem-solving, mathematical accuracy, and zero-error execution across complex financial and software systems.
+            </p>
+          </div>
+
+          <div class="bg-stone-900/90 border border-emerald-500/30 rounded-2xl p-5 space-y-2">
+            <span class="text-3xl">🧬</span>
+            <h3 class="text-base font-black text-white">NEET Aspirant & Multi-Domain Polymath</h3>
+            <p class="text-xs text-stone-300 leading-relaxed">
+              Equipped with deep scientific, medical, and analytical knowledge. Ideal for specialized healthcare & dental marketing (such as <b>Vaaraahi Advanced Dental Care</b>) as well as high-pressure technical architecture.
+            </p>
+          </div>
+
+          <div class="bg-stone-900/90 border border-sky-500/30 rounded-2xl p-5 space-y-2">
+            <span class="text-3xl">🚀</span>
+            <h3 class="text-base font-black text-white">AI-Amplified Problem Solver</h3>
+            <p class="text-xs text-stone-300 leading-relaxed">
+              Even if a tool, industry protocol, or automation has never been built before in your market, I combine advanced AI synthesis with full-stack code to build, test, and deploy it in record time.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: CLOUD POS, ERP BILLING & QUICK-COMMERCE ECOSYSTEMS -->
+    <section class="slide-frame flex-col justify-center py-6">
+      <div class="glass-card gold-border-glow rounded-3xl p-6 sm:p-10">
+        <span class="text-xs font-black uppercase tracking-widest text-emerald-400">Slide 03 • Retail & Enterprise Software</span>
+        <h2 class="serif-title text-2xl sm:text-4xl font-bold mt-1 gold-gradient-text">
+          Custom Cloud POS, ERP Billing & Blinkit-Style Quick Commerce
+        </h2>
+        <p class="text-stone-300 text-sm mt-2">
+          Eliminate expensive monthly SaaS subscriptions with custom-built, owner-controlled billing and inventory systems.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-5 space-y-2.5">
+            <div class="flex justify-between items-center">
+              <h3 class="text-base font-black text-amber-400">⚡ Instant Counter POS & Storefront Sync</h3>
+              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">Live Case Study: AB Dry Fruits</span>
+            </div>
+            <ul class="text-xs text-stone-300 space-y-1.5 list-disc pl-4">
+              <li><b>3-Way Auto-Rate Engine:</b> Type Weight, Rate/Kg, or Customer Rupee Budget (e.g., ₹200 pack) and auto-calculate exact grams instantly.</li>
+              <li><b>Instant UPI Payment Audio Chime:</b> Real-time alert rings at the owner counter the second an online customer pays via PhonePe/GPay.</li>
+              <li><b>58mm & 80mm Bold Thermal Printing:</b> Crisp receipts with built-in customer savings & weight analysis.</li>
+              <li><b>1-Click Excel Backup & Firebase Memory Cleaner:</b> Zero database overflow, 100% free cloud hosting.</li>
+            </ul>
+          </div>
+
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-5 space-y-2.5">
+            <div class="flex justify-between items-center">
+              <h3 class="text-base font-black text-sky-400">📱 Multi-Store Mobile & Retail ERP Systems</h3>
+              <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded font-bold">Sri Cell World & Cell Planet</span>
+            </div>
+            <ul class="text-xs text-stone-300 space-y-1.5 list-disc pl-4">
+              <li><b>IMEI & Serialized Inventory Tracking:</b> Tailored for mobile showrooms, electronics, and wholesale distributors.</li>
+              <li><b>Direct Phone Camera Product Upload:</b> Snap a photo on your phone to update both the online store and counter POS in 1 second.</li>
+              <li><b>WhatsApp Digital Invoices:</b> Send instant itemized receipts directly to customers' WhatsApp numbers.</li>
+              <li><b>Owner-Only SHA-256 PIN Security:</b> Full privacy over daily revenue, Cash/UPI splits, and profit margins.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: LIVE INTERACTIVE 3D AR FURNITURE & 360° ROOM VISUALIZER STUDIO -->
+    <section class="slide-frame flex-col justify-center py-4">
+      <div class="glass-card gold-border-glow rounded-3xl p-5 sm:p-7">
+        <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+          <div>
+            <span class="text-[11px] font-black uppercase tracking-widest text-sky-400">Slide 04 • Live Interactive 3D & AR Demo (Try It Below!)</span>
+            <h2 class="serif-title text-xl sm:text-3xl font-bold gold-gradient-text">
+              3D AR Hall Furniture Visualizer & 360° Client Site View
+            </h2>
+          </div>
+          <label class="cursor-pointer bg-amber-500 hover:bg-amber-400 text-stone-950 font-black px-3.5 py-2 rounded-xl text-xs shadow-md flex items-center gap-1.5 transition">
+            <span>📷 Upload Your Hall Photo</span>
+            <input type="file" accept="image/*" onchange="uploadCustomHallPhoto(this)" class="hidden">
+          </label>
+        </div>
+
+        <!-- INTERACTIVE 3D ROOM & FURNITURE WORKSPACE -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+
+          <!-- LEFT 7 COLS: DRAGGABLE 3D AR HALL STAGE -->
+          <div class="lg:col-span-7 flex flex-col">
+            <div id="arRoomStage" class="ar-stage w-full h-64 sm:h-80 rounded-2xl border-2 border-amber-500/40 shadow-2xl select-none"
+                 style="background-image: linear-gradient(180deg, #1e293b 0%, #0f172a 55%, #334155 100%);">
+              <div class="ar-floor-grid"></div>
+
+              <!-- TOP OVERLAY BADGES -->
+              <div class="absolute top-3 left-3 right-3 flex justify-between items-center z-20 pointer-events-none text-[10px] font-black">
+                <span class="bg-stone-950/85 text-amber-300 border border-amber-500/40 px-2.5 py-1 rounded-lg">
+                  🖐️ Drag 3D Furniture Anywhere in Hall
+                </span>
+                <span id="liveDimBadge" class="bg-emerald-950/90 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-lg">
+                  📐 Size: 7.0 ft × 3.2 ft | Fits Hall ✅
+                </span>
+              </div>
+
+              <!-- DRAGGABLE 3D SVG FURNITURE OBJECT -->
+              <div id="furniture3DWrapper" onmousedown="startFurnitureDrag(event)" ontouchstart="startFurnitureDrag(event)">
+                <div id="furnitureSvgContainer" class="w-56 sm:w-64 transition-transform duration-150"></div>
+              </div>
+
+              <!-- BOTTOM 360 PANORAMA SLIDER -->
+              <div class="absolute bottom-2.5 inset-x-3 bg-stone-950/80 backdrop-blur-md border border-stone-700/80 rounded-xl px-3 py-1.5 flex items-center gap-3 z-20 text-[10px]">
+                <span class="font-black text-sky-300 shrink-0">🌐 360° Room Pan:</span>
+                <input id="roomPanSlider" type="range" min="0" max="100" value="50" oninput="pan360Room(this.value)" class="w-full accent-amber-400 cursor-pointer">
+                <div class="flex gap-1 shrink-0">
+                  <button onclick="setPresetRoom(0)" class="bg-stone-800 hover:bg-stone-700 text-white px-2 py-0.5 rounded font-bold">Marble Hall</button>
+                  <button onclick="setPresetRoom(1)" class="bg-stone-800 hover:bg-stone-700 text-white px-2 py-0.5 rounded font-bold">Wood Suite</button>
+                  <button onclick="setPresetRoom(2)" class="bg-stone-800 hover:bg-stone-700 text-white px-2 py-0.5 rounded font-bold">Penthouse</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT 5 COLS: LIVE 3D CUSTOMIZER & 1-SECOND INSTANT BUY CONTROLS -->
+          <div class="lg:col-span-5 bg-stone-900/95 border border-stone-800 rounded-2xl p-4 flex flex-col justify-between space-y-3 text-xs">
+            <div class="space-y-3">
+              <div>
+                <label class="text-[10px] font-black uppercase text-stone-400 block mb-1">1. Select 3D Furniture Model</label>
+                <div class="grid grid-cols-2 gap-1.5 font-extrabold text-[11px]">
+                  <button onclick="select3DFurniture('SOFA')" id="fBtn_SOFA" class="f-model-btn bg-amber-500 text-stone-950 py-2 px-2.5 rounded-xl text-left">🛋️ Royal 3-Seater Sofa</button>
+                  <button onclick="select3DFurniture('LOUNGE')" id="fBtn_LOUNGE" class="f-model-btn bg-stone-800 text-stone-300 hover:bg-stone-700 py-2 px-2.5 rounded-xl text-left">🪑 Velvet Lounge Chair</button>
+                  <button onclick="select3DFurniture('DINING')" id="fBtn_DINING" class="f-model-btn bg-stone-800 text-stone-300 hover:bg-stone-700 py-2 px-2.5 rounded-xl text-left">🍽️ Marble Dining Table</button>
+                  <button onclick="select3DFurniture('BED')" id="fBtn_BED" class="f-model-btn bg-stone-800 text-stone-300 hover:bg-stone-700 py-2 px-2.5 rounded-xl text-left">🛏️ Luxury King Bed</button>
+                </div>
+              </div>
+
+              <!-- COLOR / UPHOLSTERY SWATCHES -->
+              <div>
+                <label class="text-[10px] font-black uppercase text-stone-400 block mb-1.5">2. Instant Color & Finish Customizer</label>
+                <div class="flex items-center gap-2.5">
+                  <button onclick="setFurnitureColor('#D97706', '#F59E0B', 'Royal Amber Velvet')" class="w-7 h-7 rounded-full bg-amber-500 border-2 border-white shadow-md hover:scale-110 transition" title="Royal Amber"></button>
+                  <button onclick="setFurnitureColor('#047857', '#10B981', 'Emerald Luxury Suede')" class="w-7 h-7 rounded-full bg-emerald-500 border-2 border-stone-600 shadow-md hover:scale-110 transition" title="Emerald Suede"></button>
+                  <button onclick="setFurnitureColor('#1E3A8A', '#3B82F6', 'Sapphire Italian Fabric')" class="w-7 h-7 rounded-full bg-blue-500 border-2 border-stone-600 shadow-md hover:scale-110 transition" title="Sapphire Blue"></button>
+                  <button onclick="setFurnitureColor('#881337', '#F43F5E', 'Crimson Royal Leather')" class="w-7 h-7 rounded-full bg-rose-500 border-2 border-stone-600 shadow-md hover:scale-110 transition" title="Crimson Leather"></button>
+                  <button onclick="setFurnitureColor('#334155', '#64748B', 'Obsidian Charcoal')" class="w-7 h-7 rounded-full bg-slate-500 border-2 border-stone-600 shadow-md hover:scale-110 transition" title="Charcoal"></button>
+                  <button onclick="setFurnitureColor('#A16207', '#EAB308', 'Teak & Champagne Gold')" class="w-7 h-7 rounded-full bg-yellow-400 border-2 border-stone-600 shadow-md hover:scale-110 transition" title="Champagne Gold"></button>
+                </div>
+                <p id="selectedFinishText" class="text-[11px] text-amber-300 font-bold mt-1">Finish: Royal Amber Velvet</p>
+              </div>
+
+              <!-- DIMENSION & 3D ROTATION SLIDERS -->
+              <div class="grid grid-cols-2 gap-2.5 bg-stone-950/80 p-2.5 rounded-xl border border-stone-800">
+                <div>
+                  <div class="flex justify-between text-[10px] font-bold">
+                    <span class="text-stone-400">Size / Width:</span>
+                    <span id="scaleValText" class="text-emerald-400">7.0 ft</span>
+                  </div>
+                  <input id="furnitureScaleSlider" type="range" min="70" max="135" value="100" oninput="updateFurnitureTransform()" class="w-full accent-emerald-400 mt-1 cursor-pointer">
+                </div>
+                <div>
+                  <div class="flex justify-between text-[10px] font-bold">
+                    <span class="text-stone-400">3D Angle:</span>
+                    <span id="angleValText" class="text-sky-400">0°</span>
+                  </div>
+                  <input id="furnitureAngleSlider" type="range" min="-35" max="35" value="0" oninput="updateFurnitureTransform()" class="w-full accent-sky-400 mt-1 cursor-pointer">
+                </div>
+              </div>
+            </div>
+
+            <!-- INSTANT PRICE & 1-SECOND DIRECT PURCHASE -->
+            <div class="pt-2 border-t border-stone-800 flex items-center justify-between gap-2">
+              <div>
+                <span class="text-[10px] text-stone-400 block font-semibold">Live Custom Price</span>
+                <span id="furniturePriceText" class="text-xl font-black text-white">₹38,500</span>
+              </div>
+              <button onclick="buy3DFurnitureNow()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black px-4 py-2.5 rounded-xl text-xs shadow-lg transition">
+                ⚡ 1-Click Direct Purchase →
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: AI 2D/3D VIDEO ANIMATION & ZERO-COST OPEN-SOURCE RENDERING -->
+    <section class="slide-frame flex-col justify-center py-6">
+      <div class="glass-card gold-border-glow rounded-3xl p-6 sm:p-10">
+        <span class="text-xs font-black uppercase tracking-widest text-pink-400">Slide 05 • Next-Gen Visual Media</span>
+        <h2 class="serif-title text-2xl sm:text-4xl font-bold mt-1 gold-gradient-text">
+          2D/3D AI Video Animation & Commercial Cinema Production
+        </h2>
+        <p class="text-stone-300 text-sm mt-2">
+          Studio-grade visual storytelling powered by open-source AI rendering pipelines and dedicated cinema hardware.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-5 space-y-2">
+            <h3 class="text-base font-black text-amber-400">🎬 AI & Open-Source 2D/3D Video Generation</h3>
+            <p class="text-xs text-stone-300 leading-relaxed">
+              Using cutting-edge AI models and <b>free/open-source rendering engines</b>, I generate high-impact 2D and 3D animated product commercials, architectural fly-throughs, and character explainers without charging agency studio overheads.
+            </p>
+          </div>
+
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-5 space-y-2">
+            <h3 class="text-base font-black text-emerald-400">🎥 On-Site Smartphone Cinema Rig Production</h3>
+            <p class="text-xs text-stone-300 leading-relaxed">
+              Equipped with a professional dual-handle cinema cage, studio LED panel lighting, and wireless microphones—delivering crisp, high-retention Instagram Reels, YouTube Shorts, and regional voiceover ads (Telugu, Urdu/Hindi & English).
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: SMART QR MENUS, SCAN-TO-REVIEW & FEEDBACK ECOSYSTEMS -->
+    <section class="slide-frame flex-col justify-center py-6">
+      <div class="glass-card gold-border-glow rounded-3xl p-6 sm:p-10">
+        <span class="text-xs font-black uppercase tracking-widest text-amber-400">Slide 06 • Reputation & Hospitality Tech</span>
+        <h2 class="serif-title text-2xl sm:text-4xl font-bold mt-1 gold-gradient-text">
+          Smart QR Digital Menus, 5-Star Review Boosters & Feedback Loops
+        </h2>
+        <p class="text-stone-300 text-sm mt-2">
+          Turn every walk-in customer or diner into a verified 5-star Google review and repeat buyer.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-4 space-y-1.5">
+            <h3 class="text-sm font-black text-amber-400">🍽️ Interactive QR Digital Menus</h3>
+            <p class="text-xs text-stone-300">
+              Instant table-side mobile menus with live price updates, food photography, and direct WhatsApp/counter ordering. Deployed for <b>Taj Darbar Restaurant</b> & <b>AL Gani's Leg Piece Chicken House</b>.
+            </p>
+          </div>
+
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-4 space-y-1.5">
+            <h3 class="text-sm font-black text-emerald-400">⭐ Smart Scan Review Stands</h3>
+            <p class="text-xs text-stone-300">
+              AI-assisted review prompts that let happy customers post keyword-rich 5-star Google reviews in 5 seconds. Proven across <b>Sri Cell World, Bhanu Mobiles, Muscle Matrix & Sports Avenue</b>.
+            </p>
+          </div>
+
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-4 space-y-1.5">
+            <h3 class="text-sm font-black text-sky-400">🛡️ Private Owner Feedback Shield</h3>
+            <p class="text-xs text-stone-300">
+              Routes any 1-to-3 star complaints directly to the owner's private WhatsApp so issues are resolved internally while public ratings stay pristine.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: CA AUTOMATIONS, WEBHOOKS & CUSTOM WORKFLOW TOOLS -->
+    <section class="slide-frame flex-col justify-center py-6">
+      <div class="glass-card gold-border-glow rounded-3xl p-6 sm:p-10">
+        <span class="text-xs font-black uppercase tracking-widest text-emerald-400">Slide 07 • Business Process Automation</span>
+        <h2 class="serif-title text-2xl sm:text-4xl font-bold mt-1 gold-gradient-text">
+          CA Office Automations, Webhooks & Zero-Manual-Work Pipelines
+        </h2>
+        <p class="text-stone-300 text-sm mt-2">
+          If your team is wasting hours on repetitive Excel sheets, client follow-ups, or accounting entries, I automate the entire workflow.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-5 space-y-2">
+            <h3 class="text-base font-black text-amber-400">📊 Chartered Accountant (CA) & Financial Automations</h3>
+            <p class="text-xs text-stone-300 leading-relaxed">
+              Custom-engineered automation tools for CA firms and finance desks—automated client document reminders, GST/invoice data extraction, ledger reconciliation sheets, and 1-click multi-sheet Excel reporting.
+            </p>
+          </div>
+
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-5 space-y-2">
+            <h3 class="text-base font-black text-sky-400">🔗 Custom Webhooks, Google Apps Script & CRM Bots</h3>
+            <p class="text-xs text-stone-300 leading-relaxed">
+              Instant webhook triggers that connect your website, Meta Lead Ads, Google Sheets, Firebase, and WhatsApp—so every lead or payment triggers an immediate automated action without human delay.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: META ADS, SOCIAL MEDIA MANAGEMENT & VIRAL WEBHOOK PR STUNTS -->
+    <section class="slide-frame flex-col justify-center py-6">
+      <div class="glass-card gold-border-glow rounded-3xl p-6 sm:p-10">
+        <span class="text-xs font-black uppercase tracking-widest text-pink-400">Slide 08 • High-Scale Customer Acquisition</span>
+        <h2 class="serif-title text-2xl sm:text-4xl font-bold mt-1 gold-gradient-text">
+          Meta Ads Mastery, Social Media Management & Viral PR Stunts
+        </h2>
+        <p class="text-stone-300 text-sm mt-2">
+          Managing and scaling famous brands in Khammam with precision ad targeting and scroll-stopping creative campaigns.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div class="bg-stone-900/90 border border-amber-500/30 rounded-2xl p-4 space-y-2">
+            <span class="text-[10px] bg-amber-500 text-stone-950 font-black px-2 py-0.5 rounded uppercase">Hospitality Flagship</span>
+            <h3 class="text-sm font-black text-white">Hotel Kaveri & Kaveri Resort</h3>
+            <p class="text-xs text-stone-300">
+              Full-scale social media content creation, cinematic video editing, and high-ROAS Meta advertising campaigns driving bookings and footfall for Khammam's premier hospitality destination.
+            </p>
+          </div>
+
+          <div class="bg-stone-900/90 border border-emerald-500/30 rounded-2xl p-4 space-y-2">
+            <span class="text-[10px] bg-emerald-400 text-stone-950 font-black px-2 py-0.5 rounded uppercase">Healthcare & Real Estate</span>
+            <h3 class="text-sm font-black text-white">Vaaraahi Dental & AK Towers</h3>
+            <p class="text-xs text-stone-300">
+              Targeted promotional campaigns and regional voiceover ad scripts for <b>Dr. Uday Kiran & Dr. Sravya (Vaaraahi Advanced Dental Care)</b> and <b>AL Gani Constructor (AK Towers)</b>.
+            </p>
+          </div>
+
+          <div class="bg-stone-900/90 border border-pink-500/30 rounded-2xl p-4 space-y-2">
+            <span class="text-[10px] bg-pink-400 text-stone-950 font-black px-2 py-0.5 rounded uppercase">Viral Growth Engine</span>
+            <h3 class="text-sm font-black text-white">PR & Interactive Webhook Stunts</h3>
+            <p class="text-xs text-stone-300">
+              Custom gamified landing pages, instant spin-to-win/reward webhooks, and viral local PR campaigns that flood your store with organic social buzz.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: PROVEN CLIENT ECOSYSTEM IN KHAMMAM -->
+    <section class="slide-frame flex-col justify-center py-6">
+      <div class="glass-card gold-border-glow rounded-3xl p-6 sm:p-10">
+        <span class="text-xs font-black uppercase tracking-widest text-amber-400">Slide 09 • Proven Track Record</span>
+        <h2 class="serif-title text-2xl sm:text-4xl font-bold mt-1 gold-gradient-text">
+          Trusted by Leading Businesses Across Hospitality, Retail & Healthcare
+        </h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 text-xs">
+          <div class="bg-stone-900/90 border border-stone-800 rounded-xl p-3.5">
+            <p class="font-black text-amber-400">🏨 Hotel Kaveri & Resort</p>
+            <p class="text-stone-400 text-[11px] mt-0.5">Meta Ads, Reels & Social Growth</p>
+          </div>
+          <div class="bg-stone-900/90 border border-stone-800 rounded-xl p-3.5">
+            <p class="font-black text-emerald-400">🥜 AB Dry Fruits</p>
+            <p class="text-stone-400 text-[11px] mt-0.5">Quick-Commerce Store & Cloud POS</p>
+          </div>
+          <div class="bg-stone-900/90 border border-stone-800 rounded-xl p-3.5">
+            <p class="font-black text-sky-400">📱 Sri Cell World & Cell Planet</p>
+            <p class="text-stone-400 text-[11px] mt-0.5">ERP Billing & Smart Review Displays</p>
+          </div>
+          <div class="bg-stone-900/90 border border-stone-800 rounded-xl p-3.5">
+            <p class="font-black text-pink-400">🦷 Vaaraahi Dental Care</p>
+            <p class="text-stone-400 text-[11px] mt-0.5">Video Ad Scripts & Digital Campaigns</p>
+          </div>
+          <div class="bg-stone-900/90 border border-stone-800 rounded-xl p-3.5">
+            <p class="font-black text-amber-300">🏢 AK Towers (AL Gani)</p>
+            <p class="text-stone-400 text-[11px] mt-0.5">Real Estate Commercial Production</p>
+          </div>
+          <div class="bg-stone-900/90 border border-stone-800 rounded-xl p-3.5">
+            <p class="font-black text-emerald-300">🍽️ Taj Darbar Restaurant</p>
+            <p class="text-stone-400 text-[11px] mt-0.5">Custom Digital Menu & Review System</p>
+          </div>
+          <div class="bg-stone-900/90 border border-stone-800 rounded-xl p-3.5">
+            <p class="font-black text-sky-300">🍗 AL Gani's Leg Piece House</p>
+            <p class="text-stone-400 text-[11px] mt-0.5">Smart QR Scan & Feedback System</p>
+          </div>
+          <div class="bg-stone-900/90 border border-stone-800 rounded-xl p-3.5">
+            <p class="font-black text-purple-300">🏋️ Muscle Matrix, Sports Ave & Bhanu Mobiles</p>
+            <p class="text-stone-400 text-[11px] mt-0.5">Smart QR Review Ecosystems</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: DIRECT CONTACT & CALL TO ACTION -->
+    <section class="slide-frame flex-col justify-center py-6">
+      <div class="glass-card gold-border-glow rounded-3xl p-6 sm:p-12 text-center space-y-5">
+        <span class="bg-amber-500 text-stone-950 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-widest">
+          Let's Scale Your Business
+        </span>
+        <h2 class="serif-title text-3xl sm:text-5xl font-bold gold-gradient-text">
+          Ready to Automate, Digitize & Dominate Your Market?
+        </h2>
+        <p class="text-stone-300 text-sm sm:text-base max-w-2xl mx-auto">
+          Whether you need a custom POS/ERP software, a 3D interactive website, CA workflow automation, or a high-converting Meta Ad campaign—reach out directly for a live demo.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto pt-3">
+          <a href="https://wa.me/919032208086?text=Hi%20Syed%20Zeeshaan%20Ali,%20I%20want%20to%20discuss%20software/digital%20marketing%20for%20my%20business." target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl p-4 font-black shadow-lg transition flex flex-col items-center">
+            <span class="text-2xl">💬</span>
+            <span class="text-xs uppercase tracking-wider text-emerald-200 mt-1">WhatsApp Direct</span>
+            <span class="text-base mt-0.5">+91 90322 08086</span>
+          </a>
+
+          <a href="tel:7989698613" class="bg-amber-500 hover:bg-amber-400 text-stone-950 rounded-2xl p-4 font-black shadow-lg transition flex flex-col items-center">
+            <span class="text-2xl">📞</span>
+            <span class="text-xs uppercase tracking-wider text-stone-800 mt-1">Direct Voice Call</span>
+            <span class="text-base mt-0.5">+91 79896 98613</span>
+          </a>
+
+          <a href="https://catb12345612-ai.github.io/Syed-Zeeshaan-Ali-High-Fledged-Engineering-And-Digital-Tech-Solutions-Site/" target="_blank" class="bg-stone-900 hover:bg-stone-800 border border-amber-500/50 text-amber-300 rounded-2xl p-4 font-black shadow-lg transition flex flex-col items-center">
+            <span class="text-2xl">🌐</span>
+            <span class="text-xs uppercase tracking-wider text-stone-400 mt-1">Official Portfolio</span>
+            <span class="text-sm mt-0.5 underline">Tap to Open Website</span>
+          </a>
+        </div>
+
+        <div class="pt-4">
+          <a href="https://www.instagram.com/syedzeeshaanali07/" target="_blank" class="inline-flex items-center gap-2 text-xs font-bold text-pink-400 hover:underline">
+            <span>📸 Follow & DM on Instagram: @syedzeeshaanali07</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM SLIDE NAVIGATION BAR -->
+  <footer id="bottomControls" class="sticky bottom-0 z-40 bg-stone-950/90 backdrop-blur-md border-t border-stone-800 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex justify-between items-center text-xs font-extrabold">
+      <button onclick="changeSlide(-1)" class="bg-stone-900 hover:bg-stone-800 text-white border border-stone-700 px-4 py-2 rounded-xl transition">
+        ← Previous Slide
+      </button>
+      <span id="slideCounter" class="text-amber-400 font-black tracking-wider">SLIDE 01 / 10</span>
+      <button onclick="changeSlide(1)" class="bg-amber-500 hover:bg-amber-400 text-stone-950 px-5 py-2 rounded-xl shadow transition">
+        Next Slide →
+      </button>
+    </div>
+  </footer>
+
+<script>
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.slide-frame');
+  const dotsContainer = document.getElementById('slideDots');
+
+  // ==================== 3D AR FURNITURE STUDIO STATE ====================
+  let activeFurnitureModel = 'SOFA';
+  let primaryColor = '#D97706';
+  let secondaryColor = '#F59E0B';
+  let finishName = 'Royal Amber Velvet';
+  let isDraggingFurniture = false;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+
+  const furnitureSpecs = {
+    SOFA: { name: "Royal Chesterfield 3-Seater Sofa", baseFtW: 7.0, baseFtD: 3.2, basePrice: 38500 },
+    LOUNGE: { name: "Executive Velvet Lounge Chair", baseFtW: 3.5, baseFtD: 3.0, basePrice: 18900 },
+    DINING: { name: "Italian 6-Seater Marble Dining Table", baseFtW: 6.5, baseFtD: 3.8, basePrice: 46000 },
+    BED: { name: "Luxury Tufted King Size Bed", baseFtW: 6.8, baseFtD: 7.2, basePrice: 54000 }
+  };
+
+  const presetRooms = [
+    "radial-gradient(circle at 50% 30%, #334155 0%, #0f172a 60%, #1e293b 100%)",
+    "radial-gradient(circle at 50% 30%, #451a03 0%, #1c1917 65%, #292524 100%)",
+    "radial-gradient(circle at 50% 30%, #064e3b 0%, #090d16 65%, #1e293b 100%)"
+  ];
+
+  function render3DFurnitureSvg() {
+    const box = document.getElementById('furnitureSvgContainer');
+    if (!box) return;
+
+    if (activeFurnitureModel === 'SOFA') {
+      box.innerHTML = `
+        <svg viewBox="0 0 320 150" class="w-full h-auto">
+          <!-- 3D Floor Shadow -->
+          <ellipse cx="160" cy="138" rx="145" ry="10" fill="rgba(0,0,0,0.55)"/>
+          <!-- Backrest -->
+          <rect x="28" y="22" width="264" height="68" rx="22" fill="${primaryColor}" stroke="#fff" stroke-opacity="0.25" stroke-width="2"/>
+          <!-- Tufted Cushions -->
+          <rect x="42" y="32" width="76" height="50" rx="12" fill="${secondaryColor}"/>
+          <rect x="122" y="32" width="76" height="50" rx="12" fill="${secondaryColor}"/>
+          <rect x="202" y="32" width="76" height="50" rx="12" fill="${secondaryColor}"/>
+          <!-- Left & Right 3D Armrests -->
+          <rect x="10" y="48" width="34" height="72" rx="16" fill="${primaryColor}" stroke="#000" stroke-opacity="0.3" stroke-width="2"/>
+          <rect x="276" y="48" width="34" height="72" rx="16" fill="${primaryColor}" stroke="#000" stroke-opacity="0.3" stroke-width="2"/>
+          <!-- Seat Deck -->
+          <rect x="36" y="76" width="248" height="42" rx="12" fill="${secondaryColor}" stroke="${primaryColor}" stroke-width="3"/>
+          <!-- Gold Legs -->
+          <rect x="26" y="118" width="10" height="18" rx="3" fill="#FBBF24"/>
+          <rect x="284" y="118" width="10" height="18" rx="3" fill="#FBBF24"/>
+        </svg>`;
+    } else if (activeFurnitureModel === 'LOUNGE') {
+      box.innerHTML = `
+        <svg viewBox="0 0 220 160" class="w-44 mx-auto h-auto">
+          <ellipse cx="110" cy="146" rx="85" ry="10" fill="rgba(0,0,0,0.55)"/>
+          <rect x="45" y="18" width="130" height="80" rx="28" fill="${primaryColor}" stroke="#fff" stroke-opacity="0.25" stroke-width="2"/>
+          <rect x="62" y="32" width="96" height="56" rx="18" fill="${secondaryColor}"/>
+          <rect x="26" y="56" width="30" height="64" rx="14" fill="${primaryColor}"/>
+          <rect x="164" y="56" width="30" height="64" rx="14" fill="${primaryColor}"/>
+          <rect x="48" y="84" width="124" height="36" rx="12" fill="${secondaryColor}" stroke="${primaryColor}" stroke-width="3"/>
+          <line x1="65" y1="120" x2="50" y2="144" stroke="#FBBF24" stroke-width="7" stroke-linecap="round"/>
+          <line x1="155" y1="120" x2="170" y2="144" stroke="#FBBF24" stroke-width="7" stroke-linecap="round"/>
+        </svg>`;
+    } else if (activeFurnitureModel === 'DINING') {
+      box.innerHTML = `
+        <svg viewBox="0 0 320 150" class="w-full h-auto">
+          <ellipse cx="160" cy="138" rx="140" ry="10" fill="rgba(0,0,0,0.55)"/>
+          <!-- Side Chairs -->
+          <rect x="45" y="34" width="42" height="88" rx="10" fill="${primaryColor}"/>
+          <rect x="138" y="28" width="44" height="92" rx="10" fill="${primaryColor}"/>
+          <rect x="232" y="34" width="42" height="88" rx="10" fill="${primaryColor}"/>
+          <!-- 3D Perspective Tabletop -->
+          <polygon points="20,72 300,72 280,50 40,50" fill="${secondaryColor}" stroke="#FFF" stroke-width="2"/>
+          <rect x="20" y="72" width="280" height="10" rx="4" fill="${primaryColor}"/>
+          <!-- Architectural Pedestal Legs -->
+          <polygon points="75,82 95,82 110,134 65,134" fill="#FBBF24"/>
+          <polygon points="225,82 245,82 255,134 210,134" fill="#FBBF24"/>
+        </svg>`;
+    } else {
+      box.innerHTML = `
+        <svg viewBox="0 0 320 160" class="w-full h-auto">
+          <ellipse cx="160" cy="146" rx="148" ry="10" fill="rgba(0,0,0,0.55)"/>
+          <!-- Royal Headboard -->
+          <rect x="30" y="14" width="260" height="72" rx="16" fill="${primaryColor}" stroke="#FBBF24" stroke-width="3"/>
+          <!-- Pillows -->
+          <rect x="58" y="48" width="85" height="32" rx="10" fill="#FFFBEB"/>
+          <rect x="177" y="48" width="85" height="32" rx="10" fill="#FFFBEB"/>
+          <!-- Mattress & Duvet -->
+          <rect x="22" y="74" width="276" height="54" rx="14" fill="${secondaryColor}" stroke="${primaryColor}" stroke-width="4"/>
+          <rect x="32" y="128" width="12" height="14" fill="#FBBF24"/>
+          <rect x="276" y="128" width="12" height="14" fill="#FBBF24"/>
+        </svg>`;
+    }
+    updateFurnitureTransform();
+  }
+
+  function select3DFurniture(modelKey) {
+    activeFurnitureModel = modelKey;
+    ['SOFA', 'LOUNGE', 'DINING', 'BED'].forEach(k => {
+      const btn = document.getElementById('fBtn_' + k);
+      if (btn) {
+        btn.className = k === modelKey
+          ? "f-model-btn bg-amber-500 text-stone-950 py-2 px-2.5 rounded-xl text-left font-black"
+          : "f-model-btn bg-stone-800 text-stone-300 hover:bg-stone-700 py-2 px-2.5 rounded-xl text-left font-extrabold";
+      }
+    });
+    render3DFurnitureSvg();
+  }
+
+  function setFurnitureColor(pCol, sCol, label) {
+    primaryColor = pCol;
+    secondaryColor = sCol;
+    finishName = label;
+    document.getElementById('selectedFinishText').innerText = `Finish: ${label}`;
+    render3DFurnitureSvg();
+  }
+
+  function updateFurnitureTransform() {
+    const scalePct = Number(document.getElementById('furnitureScaleSlider')?.value || 100) / 100;
+    const angleDeg = Number(document.getElementById('furnitureAngleSlider')?.value || 0);
+    const wrapper = document.getElementById('furniture3DWrapper');
+    if (!wrapper) return;
+
+    wrapper.style.transform = `translate(-50%, -50%) perspective(900px) rotateY(${angleDeg}deg) scale(${scalePct})`;
+
+    const spec = furnitureSpecs[activeFurnitureModel];
+    const calcW = (spec.baseFtW * scalePct).toFixed(1);
+    const calcD = (spec.baseFtD * scalePct).toFixed(1);
+    const calcPrice = Math.round(spec.basePrice * scalePct);
+
+    document.getElementById('scaleValText').innerText = `${calcW} ft`;
+    document.getElementById('angleValText').innerText = `${angleDeg}°`;
+    document.getElementById('liveDimBadge').innerText = `📐 Size: ${calcW} ft × ${calcD} ft | Fits Hall ✅`;
+    document.getElementById('furniturePriceText').innerText = `₹${calcPrice.toLocaleString('en-IN')}`;
+  }
+
+  function uploadCustomHallPhoto(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const stage = document.getElementById('arRoomStage');
+        stage.style.backgroundImage = `url('${e.target.result}')`;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  function setPresetRoom(idx) {
+    const stage = document.getElementById('arRoomStage');
+    stage.style.backgroundImage = presetRooms[idx] || presetRooms[0];
+  }
+
+  function pan360Room(val) {
+    const stage = document.getElementById('arRoomStage');
+    stage.style.backgroundPosition = `${val}% center`;
+  }
+
+  function startFurnitureDrag(e) {
+    e.stopPropagation();
+    isDraggingFurniture = true;
+    const wrapper = document.getElementById('furniture3DWrapper');
+    const stage = document.getElementById('arRoomStage');
+    const stageRect = stage.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    dragOffsetX = clientX - stageRect.left - wrapper.offsetLeft;
+    dragOffsetY = clientY - stageRect.top - wrapper.offsetTop;
+  }
+
+  window.addEventListener('mousemove', moveFurnitureDrag);
+  window.addEventListener('touchmove', moveFurnitureDrag, { passive: false });
+  window.addEventListener('mouseup', () => { isDraggingFurniture = false; });
+  window.addEventListener('touchend', () => { isDraggingFurniture = false; });
+
+  function moveFurnitureDrag(e) {
+    if (!isDraggingFurniture) return;
+    if (e.cancelable) e.preventDefault();
+    const wrapper = document.getElementById('furniture3DWrapper');
+    const stage = document.getElementById('arRoomStage');
+    const stageRect = stage.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    let newLeft = clientX - stageRect.left - dragOffsetX;
+    let newTop = clientY - stageRect.top - dragOffsetY;
+
+    newLeft = Math.max(60, Math.min(stageRect.width - 60, newLeft));
+    newTop = Math.max(60, Math.min(stageRect.height - 50, newTop));
+
+    wrapper.style.left = `${newLeft}px`;
+    wrapper.style.top = `${newTop}px`;
+  }
+
+  function buy3DFurnitureNow() {
+    const spec = furnitureSpecs[activeFurnitureModel];
+    const dim = document.getElementById('scaleValText').innerText;
+    const price = document.getElementById('furniturePriceText').innerText;
+    const msg = `Hi Syed Zeeshaan Ali! I just tested your Live 3D AR Furniture Room Visualizer (${spec.name} | Finish: ${finishName} | Size: ${dim} | ${price}) inside your presentation deck and want a similar 3D/AR system for my business!`;
+    window.open(`https://wa.me/919032208086?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
+  // ==================== SLIDE DECK NAVIGATION ====================
+  function initDeck() {
+    dotsContainer.innerHTML = Array.from(slides).map((_, i) =>
+      `<button onclick="goToSlide(${i})" class="w-2.5 h-2.5 rounded-full transition ${i === 0 ? 'bg-amber-400 w-6' : 'bg-stone-700 hover:bg-stone-500'}"></button>`
+    ).join('');
+    updateSlideUI();
+    render3DFurnitureSvg();
+  }
+
+  function updateSlideUI() {
+    slides.forEach((s, idx) => {
+      s.classList.toggle('active', idx === currentSlide);
+    });
+    document.getElementById('slideCounter').innerText =
+      `SLIDE ${String(currentSlide + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+
+    Array.from(dotsContainer.children).forEach((dot, idx) => {
+      dot.className = idx === currentSlide
+        ? 'w-6 h-2.5 rounded-full bg-amber-400 transition-all'
+        : 'w-2.5 h-2.5 rounded-full bg-stone-700 hover:bg-stone-500 transition-all';
+    });
+  }
+
+  function changeSlide(delta) {
+    currentSlide = (currentSlide + delta + slides.length) % slides.length;
+    updateSlideUI();
+  }
+
+  function goToSlide(index) {
+    currentSlide = index;
+    updateSlideUI();
+  }
+
+  window.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      changeSlide(1);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      changeSlide(-1);
+    }
+  });
+
+  let touchStartX = 0;
+  window.addEventListener('touchstart', e => {
+    if (isDraggingFurniture || e.target.tagName === 'INPUT') return;
+    touchStartX = e.changedTouches[0].screenX;
+  });
+  window.addEventListener('touchend', e => {
+    if (isDraggingFurniture || e.target.tagName === 'INPUT' || !touchStartX) return;
+    const diff = touchStartX - e.changedTouches[0].screenX;
+    if (Math.abs(diff) > 65) changeSlide(diff > 0 ? 1 : -1);
+    touchStartX = 0;
+  });
+
+  initDeck();
+</script>
+</body>
+</html>
